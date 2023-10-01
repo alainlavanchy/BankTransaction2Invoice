@@ -4,7 +4,7 @@ This script aims to add the invoice number to a transaction id in the monthly pd
 Input
 --
 - Bank report as pdf
-- XLS list containg the invoice numbers and the corresponding bank transaction id
+- CSV file containg the invoice numbers and the corresponding bank transaction id
 
 Output
 --
