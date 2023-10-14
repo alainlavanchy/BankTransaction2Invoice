@@ -12,8 +12,8 @@ import os
 import sys
 import pathlib
 import yaml
-import tkinter as tk
-from tkinter import ttk
+from tkinter import *
+from tkinter.ttk import *
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 
@@ -118,25 +118,31 @@ def main():
     logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
     logging.info(configdata)
     logging.info('Start Logging')
-    root = tk.Tk()
+    root = Tk()
     root.title('Transaction 2 Invoice')
     root.resizable(False, False)
     root.geometry('400x300')
-
-    button_PDF = ttk.Button(
+    p_icon = PhotoImage(file = 'Logo_icon.png')
+    root.iconphoto(False, p_icon)
+    logo_image = PhotoImage(file='Logo_fonts.png')
+    canvas = Canvas(root, width=400, height=300)
+    canvas.pack()
+    canvas.create_image(20,20,anchor=NW, image=logo_image)
+    canvas.configure(bg='white')
+    button_PDF = Button(
         root,
         text='PDF Monatsauszug',
         command=select_pdf
     )
     button_PDF.place(x=50, y=100)
 
-    button_CSV = ttk.Button(
+    button_CSV = Button(
         root,
         text='CSV Zuordnung',
         command=select_csv
     )
     button_CSV.place(x=50, y=140)
-    button_exit = ttk.Button(
+    button_exit = Button(
         root,      
         text='Abbrechen',
         command=root.destroy
@@ -145,6 +151,8 @@ def main():
 
     root.mainloop()
 
+    """
+
     pdffile = check_arguments()
     if check_file(pdffile) == 1:
         create_xml_tree(pdffile)
@@ -152,6 +160,8 @@ def main():
     else:
         logging.error('PDF not able to open')
         exit(1)
+
+    """
 
 if __name__ == "__main__":
     main()
