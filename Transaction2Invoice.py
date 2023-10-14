@@ -88,10 +88,14 @@ def select_pdf():
         filetypes=filetypes
     )
 
-    showinfo(
-        title='Ausgewaehlte Datei',
-        message=pdf_name
-    )
+    pdf_name_name = pdf_name.strip()
+    if (len(pdf_name)==0):
+        showinfo("show info", "Es muss eine Datei ausgewählt werden")
+        return
+    else:
+        pdf_file.set(pdf_name)
+
+  
 
 def select_csv():
     filetypes = (
@@ -104,50 +108,70 @@ def select_csv():
         filetypes=filetypes
     )
 
-    showinfo(
-        title='Ausgewaehlte Datei',
-        message=csv_name
-    )
+    csv_name = csv_name.strip()
+    if (len(csv_name)==0):
+        showinfo("show info", "Es muss eine Datei ausgewählt werden")
+        return
+    else:
+        csv_file.set(csv_name)
 
 def main():
     """
     This is the main function with all settings and commands to run the programm
     """
     config_file = "config.yml"
+    global csv_file
+    global pdf_file
     configdata = read_configuration(config_file)
     logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
     logging.info(configdata)
     logging.info('Start Logging')
     root = Tk()
+    csv_file = StringVar()
+    pdf_file = StringVar()
     root.title('Transaction 2 Invoice')
     root.resizable(False, False)
-    root.geometry('400x300')
+    root.geometry('900x500')
     p_icon = PhotoImage(file = 'Logo_icon.png')
     root.iconphoto(False, p_icon)
     logo_image = PhotoImage(file='Logo_fonts.png')
-    canvas = Canvas(root, width=400, height=300)
+    canvas = Canvas(root, width=900, height=500)
     canvas.pack()
     canvas.create_image(20,20,anchor=NW, image=logo_image)
     canvas.configure(bg='white')
+    lblPDFName  = Label(root, text = "PDF Datei Monatsauszug", width = 24)
+    lblPDFName.place(x=50, y=100)
+    txtPDFName  = Entry(root, textvariable = pdf_file, width = 80, font = ('bold 9'))
+    txtPDFName.place(x=200, y=100)
     button_PDF = Button(
         root,
         text='PDF Monatsauszug',
         command=select_pdf
     )
-    button_PDF.place(x=50, y=100)
-
+    button_PDF.place(x=50, y=130)
+    lblCSVName  = Label(root, text = "CSV Datei", width = 24)
+    lblCSVName.place(x=50, y=180)
+    txtCSVName  = Entry(root, textvariable = csv_file, width = 80, font = ('bold 9'))
+    txtCSVName.place(x=200, y=180)
     button_CSV = Button(
         root,
         text='CSV Zuordnung',
         command=select_csv
     )
-    button_CSV.place(x=50, y=140)
+    button_CSV.place(x=50, y=210)
+
+    button_run = Button(
+        root,      
+        text='Zuordnen',
+        command=root.destroy
+    )
+    button_run.place(x=350, y=300)
     button_exit = Button(
         root,      
         text='Abbrechen',
         command=root.destroy
     )
-    button_exit.place(x=50, y=200)
+    button_exit.place(x=450, y=300)
 
     root.mainloop()
 
