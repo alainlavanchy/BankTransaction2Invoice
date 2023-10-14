@@ -128,16 +128,20 @@ def main():
         text='PDF Monatsauszug',
         command=select_pdf
     )
+    button_PDF.place(x=50, y=100)
 
     button_CSV = ttk.Button(
         root,
         text='CSV Zuordnung',
         command=select_csv
     )
-
-
-    button_PDF.pack(expand=True)
-    button_CSV.pack(expand=True)
+    button_CSV.place(x=50, y=140)
+    button_exit = ttk.Button(
+        root,      
+        text='Abbrechen',
+        command=root.destroy
+    )
+    button_exit.place(x=50, y=200)
 
     root.mainloop()
 
