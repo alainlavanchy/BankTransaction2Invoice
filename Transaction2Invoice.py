@@ -91,13 +91,13 @@ def select_pdf():
     )
     pdf_name = fd.askopenfilename(
         title='Datei oeffnen',
-        initialdir='/',
+        initialdir=configdata['base-directory'] if os.path.isdir(configdata['base-directory']) else '/',
         filetypes=filetypes
     )
 
     pdf_name_name = pdf_name.strip()
     if (len(pdf_name)==0):
-        showinfo("show info", "Es muss eine Datei ausgewählt werden")
+        showinfo("Fehler", "Es muss eine Datei ausgewählt werden")
         return
     else:
         pdf_file.set(pdf_name)
@@ -111,13 +111,13 @@ def select_csv():
     )
     csv_name = fd.askopenfilename(
         title='Datei oeffnen',
-        initialdir='/',
+        initialdir=configdata['base-directory'] if os.path.isdir(configdata['base-directory']) else '/',
         filetypes=filetypes
     )
 
     csv_name = csv_name.strip()
     if (len(csv_name)==0):
-        showinfo("show info", "Es muss eine Datei ausgewählt werden")
+        showinfo("Fehler", "Es muss eine Datei ausgewählt werden")
         return
     else:
         csv_file.set(csv_name)
@@ -129,7 +129,8 @@ def main():
     config_file = "config.yml"
     global csv_file
     global pdf_file
-    configdata = read_configuration(config_file)
+    global configdata
+    configdata = (read_configuration(config_file))
     logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
     logging.info(configdata)
     logging.info('{} - Start Logging'.format(get_timestamp_user()))
