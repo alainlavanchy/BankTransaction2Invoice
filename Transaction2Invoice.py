@@ -12,6 +12,10 @@ import os
 import sys
 import pathlib
 import yaml
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
 
 def read_configuration(config_path):
     """
@@ -73,6 +77,38 @@ def check_arguments():
         pdffile = sys.argv[1]
     return pdffile
 
+def select_pdf():
+    filetypes = (
+        ('PDF Dateien', '*.pdf'),
+        ('Alle Dateien', '*.*')
+    )
+    pdf_name = fd.askopenfilename(
+        title='Datei oeffnen',
+        initialdir='/',
+        filetypes=filetypes
+    )
+
+    showinfo(
+        title='Ausgewaehlte Datei',
+        message=pdf_name
+    )
+
+def select_csv():
+    filetypes = (
+        ('CSV Dateien', '*.csv'),
+        ('Alle Dateien', '*.*')
+    )
+    csv_name = fd.askopenfilename(
+        title='Datei oeffnen',
+        initialdir='/',
+        filetypes=filetypes
+    )
+
+    showinfo(
+        title='Ausgewaehlte Datei',
+        message=csv_name
+    )
+
 def main():
     """
     This is the main function with all settings and commands to run the programm
@@ -82,6 +118,29 @@ def main():
     logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
     logging.info(configdata)
     logging.info('Start Logging')
+    root = tk.Tk()
+    root.title('Transaction 2 Invoice')
+    root.resizable(False, False)
+    root.geometry('400x300')
+
+    button_PDF = ttk.Button(
+        root,
+        text='PDF Monatsauszug',
+        command=select_pdf
+    )
+
+    button_CSV = ttk.Button(
+        root,
+        text='CSV Zuordnung',
+        command=select_csv
+    )
+
+
+    button_PDF.pack(expand=True)
+    button_CSV.pack(expand=True)
+
+    root.mainloop()
+
     pdffile = check_arguments()
     if check_file(pdffile) == 1:
         create_xml_tree(pdffile)
