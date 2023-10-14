@@ -10,6 +10,7 @@ import pandas as pd
 import logging
 import os
 import sys
+import pathlib
 
 def check_file(filename):
     """
