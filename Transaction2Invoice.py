@@ -10,12 +10,19 @@ import pandas as pd
 import logging
 import os
 import sys
-import pathlib
+import datetime
 import yaml
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
+
+def get_timestamp_user():
+    user = os.getlogin()
+    timestamp = datetime.datetime.now()
+    txtstring = "{}: {}".format(timestamp, user)
+    return txtstring
+
 
 def read_configuration(config_path):
     """
@@ -39,10 +46,10 @@ def check_file(filename):
     Sys.Exit(1) if an error occurs
     """
     if not isinstance(filename, str):
-        logging.error('Filename and path has to be a string.')
+        logging.error('{} - Filename and path has to be a string.'.format(get_timestamp_user()))
         exit(1)
     if not os.path.isfile(filename):
-        logging.error('File not found')
+        logging.error('{} - File not found'.format(get_timestamp_user()))
         exit(1)
     return 1
 
@@ -69,7 +76,7 @@ def check_arguments():
     This function checks, if one argument is added to the command and gives it back.
 
     """
-    logging.info("Handed over arguments: {}".format(len(sys.argv)))
+    logging.info("{} - Handed over arguments: {}".format(get_timestamp_user()), len(sys.argv))
     if len(sys.argv)==1:
         logging.critical("Missing arguments")
         exit(1)
@@ -125,7 +132,7 @@ def main():
     configdata = read_configuration(config_file)
     logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
     logging.info(configdata)
-    logging.info('Start Logging')
+    logging.info('{} - Start Logging'.format(get_timestamp_user()))
     root = Tk()
     csv_file = StringVar()
     pdf_file = StringVar()
