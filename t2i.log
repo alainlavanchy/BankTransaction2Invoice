@@ -1,0 +1,4 @@
+INFO:root:{'log-filename': 't2i.log'}
+INFO:root:Start Logging
+INFO:root:Handed over arguments: 2
+INFO:root:XML tree created

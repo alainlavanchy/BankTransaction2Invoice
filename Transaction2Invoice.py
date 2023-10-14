@@ -11,6 +11,19 @@ import logging
 import os
 import sys
 import pathlib
+import yaml
+
+def read_configuration(config_path):
+    """
+    Parameters:
+    config_path (path object): Path to the file
+
+    The function read_configuration opens a yaml configuration file,
+    extracts all data and returns the data as dictionary.
+    """
+    with open(config_path, "r") as yamlfile:
+        config_data = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    return config_data
 
 def check_file(filename):
     """
@@ -62,9 +75,12 @@ def check_arguments():
 
 def main():
     """
-    
+    This is the main function with all settings and commands to run the programm
     """
-    logging.basicConfig(filename='Transaction2Invoice.log', level=logging.INFO)
+    config_file = "config.yml"
+    configdata = read_configuration(config_file)
+    logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
+    logging.info(configdata)
     logging.info('Start Logging')
     pdffile = check_arguments()
     if check_file(pdffile) == 1:

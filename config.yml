@@ -1,3 +1,2 @@
 ---
-log-path: log
-log-filename: t2i-log.log
+log-filename: t2i.log
