@@ -86,19 +86,6 @@ def check_arguments():
         pdffile = sys.argv[1]
     return pdffile
 
-def isvalidXMLTag(tag, xmlObject):
-    """
-    
-    
-    """
-    tagfind = xmlObject.find(tag)
-    if tagfind is None:
-        logging.error("{} - XML Tag \" {} \" not valid".format(get_timestamp_user(), tag))
-        return False
-    else:
-        return True
-
-
 def parseXML(xmlfile):
     """ 
     Parameters:
