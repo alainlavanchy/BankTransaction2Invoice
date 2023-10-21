@@ -8,10 +8,12 @@ If a match is found, the invoice number is printed next to the qr reference numb
 import pdfquery
 import pandas as pd
 import logging
+import re
 import os
 import sys
 import datetime
 import yaml
+import xml.etree.ElementTree as ET
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog as fd
@@ -84,6 +86,64 @@ def check_arguments():
         pdffile = sys.argv[1]
     return pdffile
 
+def isvalidXMLTag(tag, xmlObject):
+    """
+    
+    
+    """
+    tagfind = xmlObject.find(tag)
+    if tagfind is None:
+        logging.error("{} - XML Tag \" {} \" not valid".format(get_timestamp_user(), tag))
+        return False
+    else:
+        return True
+
+
+def parseXML(xmlfile):
+    """ 
+    Parameters:
+    xmlfile(str): Path to the xmlfile
+
+    Returns:
+    payments(dict): Containing a list with the qr reference numbers and the locations within the pdf file.
+
+    This function search for all the 27 digit qr refrence numbers within the xml file and saves
+    the found numbers aswell as the allocated coordinates in the payments dictionary.
+    
+    """
+
+    #get the xml tag from the config file
+    #xmltag = configdata['xml-tag']  remove # to be used in final script
+    xmltag = "LTTextLineHorizontal"
+
+
+    #create element tree object
+    tree = ET.parse(xmlfile)
+
+    #get root element
+    root = tree.getroot()
+
+    #create empty list for the payment elements
+    payments = []
+
+    tagfind = root.find(".//" + xmltag)
+    if tagfind is None:
+        logging.error("{} - XML Tag \" {} \" not valid".format(get_timestamp_user(), xmltag))
+        exit(1)
+    else:
+    #iterate the pdf elements. Depending on the pdfs layout, the tag has to be changed
+        for payment in root.iter(xmltag):
+            string = str(payment.text)
+            if re.match("\d{27}", string):
+                paymentdetails = {}
+                logging.debug("{} - Referenznummer: {}".format(get_timestamp_user(), payment.text))
+                paymentdetails['Referenznummer'] = payment.text
+                logging.debug("{} - Koordianten: {}".format(get_timestamp_user(), payment.get('bbox')))
+                paymentdetails['Koordinaten'] = payment.get('bbox')
+                payments.append(paymentdetails)
+        print(payments)
+    return payments
+
 def select_pdf():
     filetypes = (
         ('PDF Dateien', '*.pdf'),
@@ -131,14 +191,14 @@ def main():
     global pdf_file
     global configdata
     configdata = (read_configuration(config_file))
-    logging.basicConfig(filename=configdata['log-filename'], level=logging.INFO)
+    logging.basicConfig(filename=configdata['log-filename'], level=logging.DEBUG)
     logging.info(configdata)
     logging.info('{} - Start Logging'.format(get_timestamp_user()))
     root = Tk()
     csv_file = StringVar()
     pdf_file = StringVar()
     root.title('Transaction 2 Invoice')
-    root.resizable(False, False)
+    root.resizable(True, True)
     root.geometry('900x500')
     p_icon = PhotoImage(file = 'Logo_icon.png')
     root.iconphoto(False, p_icon)
@@ -196,5 +256,6 @@ def main():
     """
 
 if __name__ == "__main__":
-    main()
-    
+    #main()
+    logging.basicConfig(filename="xml.log", level=logging.DEBUG)
+    parseXML("pdfXML.txt")
