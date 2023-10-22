@@ -6,18 +6,56 @@ the accordign invoice numbers.
 If a match is found, the invoice number is printed next to the qr reference number.
 """
 import pdfquery
-import pandas as pd
+import pandas as PD
 import logging
 import re
 import os
 import sys
 import datetime
 import yaml
+import io
 import xml.etree.ElementTree as ET
+from PyPDF2 import PdfWriter, PdfReader, Transformation
+from reportlab.pdfgen.canvas import Canvas
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
+
+class GenerateFromTemplate():
+    """
+    
+    
+    """
+    def __init__(self,template):
+        self.template_pdf = PdfReader(open(template, "rb"))
+        self.template_page= self.template_pdf.pages[0]
+
+        self.packet = io.BytesIO()
+        self.c = Canvas(self.packet,pagesize=(self.template_page.mediabox.width,self.template_page.mediabox.height))
+
+    
+    def addText(self,text,point):
+        self.c.drawString(point[0],point[1],text)
+
+    def merge(self):
+        self.c.save()
+        self.packet.seek(0)
+        result_pdf = PdfReader(self.packet)
+        result = result_pdf.pages[0]
+
+        self.output = PdfWriter()
+
+        op = Transformation().rotate(0).translate(tx=0, ty=0)
+        result.add_transformation(op)
+        self.template_page.merge_page(result)
+        self.output.add_page(self.template_page)
+    
+    def generate(self,dest):
+        outputStream = open(dest,"wb")
+        self.output.write(outputStream)
+        outputStream.close()
+
 
 def get_timestamp_user():
     user = os.getlogin()
@@ -87,16 +125,13 @@ def check_arguments():
     return pdffile
 
 def parseXML(xmlfile):
-    """ 
-    Parameters:
-    xmlfile(str): Path to the xmlfile
+    """Parses through the xml file to find all the 27 digit QR reference numbers and their positions
+
+    Args:
+        xmlfile(str): Path to the xmlfile.
 
     Returns:
-    payments(dict): Containing a list with the qr reference numbers and the locations within the pdf file.
-
-    This function search for all the 27 digit qr refrence numbers within the xml file and saves
-    the found numbers aswell as the allocated coordinates in the payments dictionary.
-    
+        payments(dict): Containing a list with the qr reference numbers and the locations within the pdf file.
     """
 
     #get the xml tag from the config file
@@ -123,13 +158,76 @@ def parseXML(xmlfile):
             string = str(payment.text)
             if re.match("\d{27}", string):
                 paymentdetails = {}
-                logging.debug("{} - Referenznummer: {}".format(get_timestamp_user(), payment.text))
-                paymentdetails['Referenznummer'] = payment.text
-                logging.debug("{} - Koordianten: {}".format(get_timestamp_user(), payment.get('bbox')))
-                paymentdetails['Koordinaten'] = payment.get('bbox')
+                logging.debug("{} - Referencenumber: {}".format(get_timestamp_user(), payment.text))
+                paymentdetails['Referencenumber'] = payment.text
+                logging.debug("{} - Coordinates: {}".format(get_timestamp_user(), payment.get('bbox')))
+                paymentdetails['Coordinates'] = payment.get('bbox')
                 payments.append(paymentdetails)
         print(payments)
     return payments
+
+def writeElements2pdf(payments):
+    """Add the invoice number at the correct position to the pdf.
+
+    Args:
+        payments(list): List with all dictionaries with the QR reference numbers, invoice numbers and positions.
+
+    Returns:
+        newpdffile(str): Path to the new created pdf file with the added invoice numbers.    
+    """
+    if not isinstance(payments, list):
+        logging.error('{} - var payments has to be a list.'.format(get_timestamp_user()))
+        exit(1)
+    try:
+        pdf_file
+    except NameError:
+        logging.error('{} - pdf file has to be selected'.format(get_timestamp_user()))
+        exit(1)
+    newpdf = GenerateFromTemplate(pdf_file)
+    movex = 10
+    movey = 10
+    for payment in payments:
+        pos = payment["Coordinates"]
+        xpos = re.search(r'\[\d*.\d{2}', pos)
+        xpos = float(xpos[0][1:]) + movex
+        ypos = re.search(r'\, \d*.\d{2}', pos)
+        ypos = float(ypos[0][1:]) + movey
+        print("x Position: {}, y Position {}".format(xpos, ypos))
+        #newpdf.addText(payment['Invoice ID'], (x-pos, y-pos))
+
+
+def getinvoicenumbers(payments):
+    """Gets the according invoice numbers from the csv file for each qr reference number found in the pdf.
+
+    Args:
+        payments(list): List with all the dictionaries containing the qr reference numbers and their positions within the pdf.
+
+    Returns:
+        payments(list): Same list with the dictionaries, added with the invoice number for each qr reference number.    
+    """
+    if not isinstance(payments, list):
+        logging.error('{} - var payments has to be a list.'.format(get_timestamp_user()))
+        exit(1)
+
+    #Read the csv file
+    try:
+        csv_file
+    except NameError:
+        logging.error('{} - csv file has to be selected'.format(get_timestamp_user()))
+        exit(1)
+
+    #open CSV and create a data frame
+    csv = PD.read_csv(csv_file)
+
+    #add the invoice number to the dictionary using the information found in the csv
+    for payment in payments:
+        csvline = csv.loc[csv['QR Reference'] == payment['Referencenumber'].strip()]
+        invoicenumber = (csvline['Invoice ID'].values[0])
+        payment['Invoice ID'] = invoicenumber
+
+    return payments
+
+# Start visual elements    
 
 def select_pdf():
     filetypes = (
@@ -244,5 +342,11 @@ def main():
 
 if __name__ == "__main__":
     #main()
+    global csv_file
+    global pdf_file
+    pdf_file = "Kontoauszug_Januar.pdf"
+    csv_file = "testdata.csv"
     logging.basicConfig(filename="xml.log", level=logging.DEBUG)
-    parseXML("pdfXML.txt")
+    payments = parseXML("pdfXML.txt")
+    paymentswithinvoice = getinvoicenumbers(payments)
+    writeElements2pdf(paymentswithinvoice)
