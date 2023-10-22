@@ -194,7 +194,7 @@ def writeElements2pdf(payments):
         ypos = re.search(r'\, \d*.\d{2}', pos)
         ypos = float(ypos[0][1:]) + movey
         print("x Position: {}, y Position {}".format(xpos, ypos))
-        #newpdf.addText(payment['Invoice ID'], (x-pos, y-pos))
+        newpdf.addText(payment['Invoice ID'], (xpos, ypos))
 
 
 def getinvoicenumbers(payments):

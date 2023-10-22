@@ -1,4 +1,6 @@
 ---
 log-filename: t2i.log
 base-directory: C:\Users\Alain.Lavanchy
-xml-tag: LTTextLineHorizontal
+xml-tag: LTTextLineHorizontal #marker tag, where the qr reference can be found
+xmove: 10 #pixel to move the text in the x dimension
+ymove: 10 #pixel to move the text in the y dimension
