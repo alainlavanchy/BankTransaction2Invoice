@@ -17,6 +17,7 @@ import io
 import xml.etree.ElementTree as ET
 from PyPDF2 import PdfWriter, PdfReader, Transformation
 from reportlab.pdfgen.canvas import Canvas
+import tkinter as TK
 #from tkinter import *
 #from tkinter.ttk import *
 #from tkinter import filedialog as fd
