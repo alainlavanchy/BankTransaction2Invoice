@@ -17,10 +17,10 @@ import io
 import xml.etree.ElementTree as ET
 from PyPDF2 import PdfWriter, PdfReader, Transformation
 from reportlab.pdfgen.canvas import Canvas
-from tkinter import *
-from tkinter.ttk import *
-from tkinter import filedialog as fd
-from tkinter.messagebox import showinfo
+#from tkinter import *
+#from tkinter.ttk import *
+#from tkinter import filedialog as fd
+#from tkinter.messagebox import showinfo
 
 class GenerateFromTemplate():
     """
