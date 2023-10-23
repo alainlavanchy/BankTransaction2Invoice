@@ -4,3 +4,4 @@ base-directory: C:\Users\Alain.Lavanchy
 xml-tag: LTTextLineHorizontal #marker tag, where the qr reference can be found
 xmove: 10 #pixel to move the text in the x dimension
 ymove: 10 #pixel to move the text in the y dimension
+logginglevel: DEBUG #Sets the logging level
