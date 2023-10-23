@@ -185,12 +185,12 @@ def writeElements2pdf(payments):
         cleanup(0)
         exit(1)
     try:
-        pdf_file
+        pdf_file.get()
     except NameError:
         logging.error('{} - pdf file has to be selected'.format(get_timestamp_user()))
         cleanup(0)
         exit(1)
-    newpdf = GenerateFromTemplate(pdf_file)
+    newpdf = GenerateFromTemplate(pdf_file.get())
     movex = 10
     movey = 10
     for payment in payments:
